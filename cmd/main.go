@@ -22,6 +22,8 @@ func Start() error {
 
 	api := router.Group("/api")
 	{
+		api.POST("/register", controllers.Register)
+
 		userGroup := api.Group("/users")
 		{
 			userGroup.GET("/", controllers.IndexUsers)

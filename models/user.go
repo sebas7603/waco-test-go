@@ -51,3 +51,17 @@ func GetUserByID(id int64) (*User, error) {
 	}
 	return &user, nil
 }
+
+func CreateUser(user *User) error {
+	insertQuery := fmt.Sprintf("INSERT INTO %s (name, email, password, address, birthdate, city) VALUES (?, ?, ?, ?, ?, ?)", tableName)
+	result, err := db.GetDB().Exec(insertQuery, user.Name, user.Email, user.Password, user.Address, user.Birthdate, user.City)
+	if err != nil {
+		fmt.Println("Insert error:", err)
+		return err
+	}
+
+	id, _ := result.LastInsertId()
+	user.ID = id
+
+	return nil
+}

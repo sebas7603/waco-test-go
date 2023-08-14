@@ -10,5 +10,7 @@ func InitialConfig() error {
 		return err
 	}
 
+	// TODO: Create tables in DB
+
 	return nil
 }

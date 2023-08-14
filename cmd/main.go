@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/sebas7603/waco-test-go/config"
+	"github.com/sebas7603/waco-test-go/pkg/controllers"
 )
 
 var err error
@@ -16,6 +18,17 @@ func Start() error {
 		return err
 	}
 
-	fmt.Println("Rick And Morty API:", os.Getenv("RM_API_URL"))
+	router := gin.Default()
+
+	api := router.Group("/api")
+	{
+		userGroup := api.Group("/users")
+		{
+			userGroup.GET("/", controllers.IndexUsers)
+			userGroup.GET("/:id", controllers.ShowUser)
+		}
+	}
+
+	router.Run(":" + os.Getenv("APP_PORT"))
 	return nil
 }

@@ -20,7 +20,6 @@ func InitialConfig() error {
 		fmt.Println("Error connecting to DB", err)
 		return err
 	}
-	defer db.CloseDB()
 
 	err = createTablesInDB()
 	if err != nil {

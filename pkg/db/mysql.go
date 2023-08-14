@@ -28,6 +28,10 @@ func InitDB() error {
 	return nil
 }
 
+func GetDB() *sql.DB {
+	return db
+}
+
 func CloseDB() {
 	if db != nil {
 		db.Close()
@@ -50,5 +54,5 @@ func getDbConnectionString() string {
 	port := os.Getenv("DB_PORT")
 	name := os.Getenv("DB_DATABASE")
 
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, name)
+	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", user, pass, host, port, name)
 }

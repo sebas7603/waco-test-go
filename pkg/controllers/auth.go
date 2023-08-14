@@ -1,13 +1,18 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/sebas7603/waco-test-go/models"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var secretKey = []byte(os.Getenv("JWT_SECRET"))
 
 type RegisterInput struct {
 	Name      string    `form:"name" binding:"required"`
@@ -49,5 +54,26 @@ func Register(c *gin.Context) {
 	// Removing password from response
 	user.Password = ""
 
-	c.JSON(http.StatusCreated, gin.H{"message": "registration success", "user": user})
+	token, err := createAuthToken(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "registration success", "user": user, "token": token})
+}
+
+func createAuthToken(user *models.User) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+		"exp":     time.Now().Add(time.Hour * 168).Unix(),
+	})
+
+	tokenString, err := token.SignedString(secretKey)
+	if err != nil {
+		fmt.Println("Error generating token:", err)
+		return "", err
+	}
+
+	return tokenString, nil
 }

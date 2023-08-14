@@ -6,10 +6,10 @@ import (
 
 type User struct {
 	ID        int64
-	name      string
-	email     string
-	password  string
-	address   string
-	birthdate time.Time
-	city      string
+	Name      string
+	Email     string
+	Password  string
+	Address   string
+	Birthdate time.Time
+	City      string
 }

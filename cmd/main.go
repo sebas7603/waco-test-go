@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sebas7603/waco-test-go/config"
 	"github.com/sebas7603/waco-test-go/pkg/controllers"
+	"github.com/sebas7603/waco-test-go/pkg/middlewares"
 )
 
 var err error
@@ -25,13 +26,18 @@ func Start() error {
 		api.POST("/register", controllers.Register)
 		api.POST("/login", controllers.Login)
 
-		userGroup := api.Group("/users")
+		// userGroup := api.Group("/users")
+		// {
+		// 	userGroup.GET("/", controllers.IndexUsers)
+		// 	userGroup.GET("/:id", controllers.ShowUser)
+		// }
+
+		privateGroup := api.Group("/")
 		{
-			userGroup.GET("/", controllers.IndexUsers)
-			userGroup.GET("/:id", controllers.ShowUser)
+			privateGroup.Use(middlewares.AuthMiddleware())
 		}
 
-		characterGroup := api.Group("/characters")
+		characterGroup := privateGroup.Group("/characters")
 		{
 			characterGroup.GET("/", controllers.IndexCharacters)
 			characterGroup.GET("/:id", controllers.ShowCharacter)

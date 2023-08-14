@@ -25,15 +25,22 @@ func InitDB() error {
 		return err
 	}
 
-	fmt.Println("Connected to the database")
 	return nil
 }
 
 func CloseDB() {
 	if db != nil {
 		db.Close()
-		fmt.Println("Database connection closed")
 	}
+}
+
+func CreateTable(creationScript string) error {
+	_, err = db.Exec(creationScript)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func getDbConnectionString() string {

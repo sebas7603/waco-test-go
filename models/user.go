@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -39,4 +40,19 @@ func GetAllUsers() (*[]User, error) {
 	}
 
 	return &users, nil
+}
+
+func GetUserByID(id uint64) (*User, error) {
+	var user User
+	query := fmt.Sprintf("SELECT id, name, email, address, birthdate, city FROM %s WHERE id = %d LIMIT 1", tableName, id)
+	err := db.GetDB().QueryRow(query).Scan(&user.ID, &user.Name, &user.Email, &user.Address, &user.Birthdate, &user.City)
+
+	switch err {
+	case sql.ErrNoRows:
+		return nil, nil
+	case nil:
+		return &user, nil
+	default:
+		return nil, err
+	}
 }

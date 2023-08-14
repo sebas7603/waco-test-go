@@ -27,6 +27,12 @@ func Start() error {
 			userGroup.GET("/", controllers.IndexUsers)
 			userGroup.GET("/:id", controllers.ShowUser)
 		}
+
+		characterGroup := api.Group("/characters")
+		{
+			characterGroup.GET("/", controllers.IndexCharacters)
+			characterGroup.GET("/:id", controllers.ShowCharacter)
+		}
 	}
 
 	router.Run(":" + os.Getenv("APP_PORT"))

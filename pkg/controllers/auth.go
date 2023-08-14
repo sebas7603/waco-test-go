@@ -14,6 +14,11 @@ import (
 
 var secretKey = []byte(os.Getenv("JWT_SECRET"))
 
+type LoginInput struct {
+	Email    string `form:"email" binding:"required"`
+	Password string `form:"password" binding:"required"`
+}
+
 type RegisterInput struct {
 	Name      string    `form:"name" binding:"required"`
 	Email     string    `form:"email" binding:"required"`
@@ -21,6 +26,38 @@ type RegisterInput struct {
 	Birthdate time.Time `form:"birthdate" binding:"required" time_format:"2006-01-02"`
 	Address   string    `form:"address" binding:"required"`
 	City      string    `form:"city" binding:"required"`
+}
+
+func Login(c *gin.Context) {
+	var credentials LoginInput
+
+	if err := c.ShouldBind(&credentials); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user, err := models.GetUserByEmail(credentials.Email)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Error in credentials"})
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Error in credentials"})
+		return
+	}
+
+	// Removing password from response
+	user.Password = ""
+
+	token, err := createAuthToken(user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "login success", "user": user, "token": token})
 }
 
 func Register(c *gin.Context) {

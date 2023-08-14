@@ -23,6 +23,7 @@ func Start() error {
 	api := router.Group("/api")
 	{
 		api.POST("/register", controllers.Register)
+		api.POST("/login", controllers.Login)
 
 		userGroup := api.Group("/users")
 		{

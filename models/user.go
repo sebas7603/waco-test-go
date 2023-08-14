@@ -43,8 +43,19 @@ func GetAllUsers() (*[]User, error) {
 
 func GetUserByID(id int64) (*User, error) {
 	var user User
-	query := fmt.Sprintf("SELECT id, name, email, address, birthdate, city FROM %s WHERE id = %d LIMIT 1", tableName, id)
-	err := db.GetDB().QueryRow(query).Scan(&user.ID, &user.Name, &user.Email, &user.Address, &user.Birthdate, &user.City)
+	query := fmt.Sprintf("SELECT id, name, email, address, birthdate, city FROM %s WHERE id = ? LIMIT 1", tableName)
+	err := db.GetDB().QueryRow(query, id).Scan(&user.ID, &user.Name, &user.Email, &user.Address, &user.Birthdate, &user.City)
+
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func GetUserByEmail(email string) (*User, error) {
+	var user User
+	query := fmt.Sprintf("SELECT * FROM %s WHERE email = ? LIMIT 1", tableName)
+	err := db.GetDB().QueryRow(query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Address, &user.Birthdate, &user.City)
 
 	if err != nil {
 		return nil, err

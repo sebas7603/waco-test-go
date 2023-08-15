@@ -118,6 +118,39 @@ func RenewToken(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "token renewed", "token": token})
 }
 
+func ChangePassword(c *gin.Context) {
+	userID, _ := strconv.ParseInt(c.GetString("user_id"), 10, 64)
+	user, err := models.GetUserByIDWithPassword(userID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	currentPassword := c.PostForm("current_password")
+	newPassword := c.PostForm("new_password")
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(currentPassword))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Current password is wrong"})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user.Password = string(hashedPassword)
+
+	if err := models.UpdateUserPassword(user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "password changed"})
+}
+
 func createAuthToken(user *models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,

@@ -44,6 +44,7 @@ func Start() error {
 		}
 
 		privateGroup.POST("/renew-token", controllers.RenewToken)
+		privateGroup.POST("/change-password", controllers.ChangePassword)
 
 		profileGroup := privateGroup.Group("/profile")
 		{

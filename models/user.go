@@ -53,6 +53,17 @@ func GetUserByID(id int64) (*User, error) {
 	return &user, nil
 }
 
+func GetUserByIDWithPassword(id int64) (*User, error) {
+	var user User
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = ? LIMIT 1", tableNameUsers)
+	err := db.GetDB().QueryRow(query, id).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Address, &user.Birthdate, &user.City)
+
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 func GetUserByEmail(email string) (*User, error) {
 	var user User
 	query := fmt.Sprintf("SELECT * FROM %s WHERE email = ? LIMIT 1", tableNameUsers)
@@ -81,6 +92,16 @@ func CreateUser(user *User) error {
 func UpdateUser(user *User) error {
 	updateQuery := fmt.Sprintf("UPDATE %s SET name = ?, email = ?, address = ?, birthdate = ?, city = ? WHERE id = ?", tableNameUsers)
 	_, err := db.GetDB().Exec(updateQuery, user.Name, user.Email, user.Address, user.Birthdate, user.City, user.ID)
+	if err != nil {
+		fmt.Println("Update error:", err)
+		return err
+	}
+	return nil
+}
+
+func UpdateUserPassword(user *User) error {
+	updateQuery := fmt.Sprintf("UPDATE %s SET password = ? WHERE id = ?", tableNameUsers)
+	_, err := db.GetDB().Exec(updateQuery, user.Password, user.ID)
 	if err != nil {
 		fmt.Println("Update error:", err)
 		return err

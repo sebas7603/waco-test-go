@@ -49,6 +49,7 @@ func Start() error {
 		{
 			profileGroup.GET("/", controllers.ShowProfile)
 			profileGroup.PUT("/", controllers.UpdateProfile)
+			profileGroup.POST("/favorite", controllers.AddFavoriteByID)
 		}
 
 		characterGroup := privateGroup.Group("/characters")

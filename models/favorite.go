@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/sebas7603/waco-test-go/pkg/db"
@@ -39,4 +40,33 @@ func GetFavoritesStringByUserID(user_id int64) (string, error) {
 	}
 
 	return favString, nil
+}
+
+func AddFavorite(favorite *Favorite) error {
+	insertQuery := fmt.Sprintf("INSERT INTO %s (user_id, ref_api) VALUES (?, ?)", tableNameFavorites)
+	result, err := db.GetDB().Exec(insertQuery, favorite.UserID, favorite.RefAPI)
+	if err != nil {
+		fmt.Println("Insert error:", err)
+		return err
+	}
+
+	id, _ := result.LastInsertId()
+	favorite.ID = id
+
+	return nil
+}
+
+func CheckFavoriteExists(favorite *Favorite) (bool, error) {
+	query := fmt.Sprintf("SELECT id FROM %s WHERE user_id = ? AND ref_api = ? LIMIT 1", tableNameFavorites)
+
+	var id int64
+	err := db.GetDB().QueryRow(query, favorite.UserID, favorite.RefAPI).Scan(&id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, fmt.Errorf("Error checking favorite in DB: %v", err)
+	}
+
+	return true, nil
 }

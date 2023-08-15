@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -26,7 +27,7 @@ func ShowProfile(c *gin.Context) {
 		return
 	}
 
-	err = addFavoritesToUser(user, c)
+	err = addFavoritesToUserStruct(user, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -63,7 +64,7 @@ func UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	err = addFavoritesToUser(user, c)
+	err = addFavoritesToUserStruct(user, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -74,7 +75,57 @@ func UpdateProfile(c *gin.Context) {
 	})
 }
 
-func addFavoritesToUser(user *models.User, c *gin.Context) error {
+func AddFavoriteByID(c *gin.Context) {
+	userID, _ := strconv.ParseInt(c.GetString("user_id"), 10, 64)
+	user, err := models.GetUserByID(userID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	favorite := models.Favorite{
+		UserID: userID,
+		RefAPI: c.PostForm("character_id"),
+	}
+
+	err = checkFavoriteIsValid(&favorite)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = models.AddFavorite(&favorite)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = addFavoritesToUserStruct(user, c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"user": user,
+	})
+}
+
+func checkFavoriteIsValid(favorite *models.Favorite) error {
+	_, err := api.GetRickAndMortyCharacter(favorite.RefAPI)
+	if err != nil {
+		return fmt.Errorf("Character with ID %s doesn't exist", favorite.RefAPI)
+	}
+
+	existsInDB, _ := models.CheckFavoriteExists(favorite)
+	if existsInDB {
+		return fmt.Errorf("Character with ID %s is already a Favorite", favorite.RefAPI)
+
+	}
+	return nil
+}
+
+func addFavoritesToUserStruct(user *models.User, c *gin.Context) error {
 	favString, err := models.GetFavoritesStringByUserID(user.ID)
 	if err != nil {
 		return err

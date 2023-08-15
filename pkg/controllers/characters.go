@@ -8,7 +8,8 @@ import (
 )
 
 func IndexCharacters(c *gin.Context) {
-	characters, err := api.GetAllRickAndMortyCharacters()
+	page := c.Query("page")
+	characters, err := api.GetAllRickAndMortyCharacters(page)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

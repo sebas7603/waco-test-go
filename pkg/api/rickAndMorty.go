@@ -11,14 +11,19 @@ import (
 
 var err error
 
-func GetAllRickAndMortyCharacters() (*models.IndexResponse, error) {
+func GetAllRickAndMortyCharacters(page string) (*models.IndexResponse, error) {
 	// Making request to API
-	requestURL := fmt.Sprintf("%s/character", os.Getenv("RM_API_URL"))
+	requestURL := fmt.Sprintf("%s/character?page=%s", os.Getenv("RM_API_URL"), page)
 	response, err := http.Get(requestURL)
 	if err != nil {
 		return nil, err
 	}
 	defer response.Body.Close()
+
+	// Check the status code of the response
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API request failed with status code: %d", response.StatusCode)
+	}
 
 	// Decodign reponse in Index struct
 	var rickAndMortyIndexResponse models.IndexResponse
@@ -38,6 +43,11 @@ func GetMultipleRickAndMortyCharacters(charactersString string) (*[]models.Chara
 		return nil, err
 	}
 	defer response.Body.Close()
+
+	// Check the status code of the response
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API request failed with status code: %d", response.StatusCode)
+	}
 
 	// Decodign reponse in Index struct
 	var rickAndMortyMultipleResponse []models.Character

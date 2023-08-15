@@ -43,6 +43,8 @@ func Start() error {
 			privateGroup.Use(middlewares.AuthMiddleware())
 		}
 
+		privateGroup.POST("/renew-token", controllers.RenewToken)
+
 		profileGroup := privateGroup.Group("/profile")
 		{
 			profileGroup.GET("/", controllers.ShowProfile)

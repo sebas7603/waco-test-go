@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -21,6 +22,11 @@ func Start() error {
 
 	router := gin.Default()
 
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"api": "waco-test",
+		})
+	})
 	api := router.Group("/api")
 	{
 		api.POST("/register", controllers.Register)
@@ -50,6 +56,6 @@ func Start() error {
 		}
 	}
 
-	router.Run(":" + os.Getenv("APP_PORT"))
+	router.Run("127.0.0.1:" + os.Getenv("APP_PORT"))
 	return nil
 }

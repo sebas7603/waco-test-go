@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sebas7603/waco-test-go/models"
+	"github.com/sebas7603/waco-test-go/pkg/api"
 )
 
 type UpdateInput struct {
@@ -25,6 +27,15 @@ func ShowProfile(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
+
+	favString, err := models.GetFavoritesStringByUserID(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	fmt.Println("favString", favString)
+	user.Favorites, err = api.GetMultipleRickAndMortyCharacters(favString)
 
 	c.JSON(http.StatusOK, gin.H{
 		"user": user,

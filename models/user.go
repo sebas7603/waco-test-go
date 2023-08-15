@@ -7,7 +7,7 @@ import (
 	"github.com/sebas7603/waco-test-go/pkg/db"
 )
 
-var tableName = "users"
+var tableNameUsers = "users"
 
 type User struct {
 	ID        int64
@@ -17,11 +17,12 @@ type User struct {
 	Address   string
 	Birthdate time.Time
 	City      string
+	Favorites *[]Character
 }
 
 func GetAllUsers() (*[]User, error) {
 	var users []User
-	query := fmt.Sprintf("SELECT id, name, email, address, birthdate, city FROM %s", tableName)
+	query := fmt.Sprintf("SELECT id, name, email, address, birthdate, city FROM %s", tableNameUsers)
 	rows, err := db.GetDB().Query(query)
 	if err != nil {
 		fmt.Println("Query error:", err)
@@ -43,7 +44,7 @@ func GetAllUsers() (*[]User, error) {
 
 func GetUserByID(id int64) (*User, error) {
 	var user User
-	query := fmt.Sprintf("SELECT id, name, email, address, birthdate, city FROM %s WHERE id = ? LIMIT 1", tableName)
+	query := fmt.Sprintf("SELECT id, name, email, address, birthdate, city FROM %s WHERE id = ? LIMIT 1", tableNameUsers)
 	err := db.GetDB().QueryRow(query, id).Scan(&user.ID, &user.Name, &user.Email, &user.Address, &user.Birthdate, &user.City)
 
 	if err != nil {
@@ -54,7 +55,7 @@ func GetUserByID(id int64) (*User, error) {
 
 func GetUserByEmail(email string) (*User, error) {
 	var user User
-	query := fmt.Sprintf("SELECT * FROM %s WHERE email = ? LIMIT 1", tableName)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE email = ? LIMIT 1", tableNameUsers)
 	err := db.GetDB().QueryRow(query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Address, &user.Birthdate, &user.City)
 
 	if err != nil {
@@ -64,7 +65,7 @@ func GetUserByEmail(email string) (*User, error) {
 }
 
 func CreateUser(user *User) error {
-	insertQuery := fmt.Sprintf("INSERT INTO %s (name, email, password, address, birthdate, city) VALUES (?, ?, ?, ?, ?, ?)", tableName)
+	insertQuery := fmt.Sprintf("INSERT INTO %s (name, email, password, address, birthdate, city) VALUES (?, ?, ?, ?, ?, ?)", tableNameUsers)
 	result, err := db.GetDB().Exec(insertQuery, user.Name, user.Email, user.Password, user.Address, user.Birthdate, user.City)
 	if err != nil {
 		fmt.Println("Insert error:", err)
@@ -78,7 +79,7 @@ func CreateUser(user *User) error {
 }
 
 func UpdateUser(user *User) error {
-	updateQuery := fmt.Sprintf("UPDATE %s SET name = ?, email = ?, address = ?, birthdate = ?, city = ? WHERE id = ?", tableName)
+	updateQuery := fmt.Sprintf("UPDATE %s SET name = ?, email = ?, address = ?, birthdate = ?, city = ? WHERE id = ?", tableNameUsers)
 	_, err := db.GetDB().Exec(updateQuery, user.Name, user.Email, user.Address, user.Birthdate, user.City, user.ID)
 	if err != nil {
 		fmt.Println("Update error:", err)

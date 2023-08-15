@@ -30,6 +30,25 @@ func GetAllRickAndMortyCharacters() (*models.IndexResponse, error) {
 	return &rickAndMortyIndexResponse, nil
 }
 
+func GetMultipleRickAndMortyCharacters(charactersString string) (*[]models.Character, error) {
+	// Making request to API
+	requestURL := fmt.Sprintf("%s/character/%s", os.Getenv("RM_API_URL"), charactersString)
+	response, err := http.Get(requestURL)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	// Decodign reponse in Index struct
+	var rickAndMortyMultipleResponse []models.Character
+	err = json.NewDecoder(response.Body).Decode(&rickAndMortyMultipleResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return &rickAndMortyMultipleResponse, nil
+}
+
 func GetRickAndMortyCharacter(characterID string) (*models.Character, error) {
 	// Making request to API
 	requestURL := fmt.Sprintf("%s/character/%s", os.Getenv("RM_API_URL"), characterID)

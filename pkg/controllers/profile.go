@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -22,20 +21,16 @@ type UpdateInput struct {
 func ShowProfile(c *gin.Context) {
 	userID, _ := strconv.ParseInt(c.GetString("user_id"), 10, 64)
 	user, err := models.GetUserByID(userID)
-
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	favString, err := models.GetFavoritesStringByUserID(user.ID)
+	err = addFavoritesToUser(user, c)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	fmt.Println("favString", favString)
-	user.Favorites, err = api.GetMultipleRickAndMortyCharacters(favString)
 
 	c.JSON(http.StatusOK, gin.H{
 		"user": user,
@@ -68,7 +63,22 @@ func UpdateProfile(c *gin.Context) {
 		return
 	}
 
+	err = addFavoritesToUser(user, c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"user": user,
 	})
+}
+
+func addFavoritesToUser(user *models.User, c *gin.Context) error {
+	favString, err := models.GetFavoritesStringByUserID(user.ID)
+	if err != nil {
+		return err
+	}
+	user.Favorites, err = api.GetMultipleRickAndMortyCharacters(favString)
+	return nil
 }

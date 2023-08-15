@@ -12,7 +12,8 @@ var err error
 func InitialConfig() error {
 	err = godotenv.Load(".env")
 	if err != nil {
-		return err
+		fmt.Println("Error loading .env file", err)
+		// return err
 	}
 
 	err = db.InitDB()

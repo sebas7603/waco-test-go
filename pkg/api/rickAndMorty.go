@@ -58,6 +58,11 @@ func GetRickAndMortyCharacter(characterID string) (*models.Character, error) {
 	}
 	defer response.Body.Close()
 
+	// Check the status code of the response
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API request failed with status code: %d", response.StatusCode)
+	}
+
 	// Decodign reponse in Character struct
 	var rickAndMortyCharacterResponse models.Character
 	err = json.NewDecoder(response.Body).Decode(&rickAndMortyCharacterResponse)

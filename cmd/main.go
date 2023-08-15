@@ -2,13 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sebas7603/waco-test-go/config"
-	"github.com/sebas7603/waco-test-go/pkg/controllers"
-	"github.com/sebas7603/waco-test-go/pkg/middlewares"
+	"github.com/sebas7603/waco-test-go/routes"
 )
 
 var err error
@@ -21,45 +19,7 @@ func Start() error {
 	}
 
 	router := gin.Default()
-
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"api": "waco-test",
-		})
-	})
-	api := router.Group("/api")
-	{
-		api.POST("/register", controllers.Register)
-		api.POST("/login", controllers.Login)
-
-		// userGroup := api.Group("/users")
-		// {
-		// 	userGroup.GET("/", controllers.IndexUsers)
-		// 	userGroup.GET("/:id", controllers.ShowUser)
-		// }
-
-		privateGroup := api.Group("/")
-		{
-			privateGroup.Use(middlewares.AuthMiddleware())
-		}
-
-		privateGroup.POST("/renew-token", controllers.RenewToken)
-		privateGroup.POST("/change-password", controllers.ChangePassword)
-
-		profileGroup := privateGroup.Group("/profile")
-		{
-			profileGroup.GET("/", controllers.ShowProfile)
-			profileGroup.PUT("/", controllers.UpdateProfile)
-			profileGroup.POST("/favorite", controllers.AddFavoriteByID)
-			profileGroup.DELETE("/favorite", controllers.RemoveFavoriteByID)
-		}
-
-		characterGroup := privateGroup.Group("/characters")
-		{
-			characterGroup.GET("/", controllers.IndexCharacters)
-			characterGroup.GET("/:id", controllers.ShowCharacter)
-		}
-	}
+	routes.SetupRoutes(router)
 
 	router.Run("0.0.0.0:" + os.Getenv("PORT"))
 	return nil

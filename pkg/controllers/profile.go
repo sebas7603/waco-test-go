@@ -156,10 +156,19 @@ func checkFavoriteIsValid(favorite *models.Favorite) error {
 }
 
 func addFavoritesToUserStruct(user *models.User, c *gin.Context) error {
-	favString, err := models.GetFavoritesStringByUserID(user.ID)
+	favString, rows, err := models.GetFavoritesStringByUserID(user.ID)
 	if err != nil {
 		return err
 	}
-	user.Favorites, err = api.GetMultipleRickAndMortyCharacters(favString)
+
+	if rows == 1 {
+		var favorites []models.Character
+		favorite, _ := api.GetRickAndMortyCharacter(favString)
+		favorites = append(favorites, *favorite)
+		user.Favorites = &favorites
+	} else {
+		user.Favorites, _ = api.GetMultipleRickAndMortyCharacters(favString)
+	}
+
 	return nil
 }

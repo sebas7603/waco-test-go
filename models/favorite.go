@@ -15,22 +15,25 @@ type Favorite struct {
 	RefAPI string
 }
 
-func GetFavoritesStringByUserID(user_id int64) (string, error) {
+func GetFavoritesStringByUserID(user_id int64) (string, int, error) {
 	var favString string
+	var rowCount int
+
 	query := fmt.Sprintf("SELECT * FROM %s WHERE user_id = ?", tableNameFavorites)
 	rows, err := db.GetDB().Query(query, user_id)
 	if err != nil {
 		fmt.Println("Query error:", err)
-		return "", err
+		return "", 0, err
 	}
 
 	for rows.Next() {
 		var favorite Favorite
 		if err := rows.Scan(&favorite.ID, &favorite.UserID, &favorite.RefAPI); err != nil {
 			fmt.Println("Scan error:", err)
-			return "", err
+			return "", 0, err
 		}
 
+		rowCount++
 		if favString == "" {
 			favString = favorite.RefAPI
 			continue
@@ -39,7 +42,7 @@ func GetFavoritesStringByUserID(user_id int64) (string, error) {
 		favString = fmt.Sprintf("%s,%s", favString, favorite.RefAPI)
 	}
 
-	return favString, nil
+	return favString, rowCount, nil
 }
 
 func AddFavorite(favorite *Favorite) error {

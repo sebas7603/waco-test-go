@@ -3,6 +3,7 @@ package middlewares
 import (
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -36,8 +37,8 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		userID := int64(claims["user_id"].(float64))
-		if userID == 0 {
+		userID := strconv.Itoa(int(claims["user_id"].(float64)))
+		if userID == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing user_id claim"})
 			c.Abort()
 			return

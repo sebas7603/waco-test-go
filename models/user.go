@@ -76,3 +76,13 @@ func CreateUser(user *User) error {
 
 	return nil
 }
+
+func UpdateUser(user *User) error {
+	updateQuery := fmt.Sprintf("UPDATE %s SET name = ?, email = ?, address = ?, birthdate = ?, city = ? WHERE id = ?", tableName)
+	_, err := db.GetDB().Exec(updateQuery, user.Name, user.Email, user.Address, user.Birthdate, user.City, user.ID)
+	if err != nil {
+		fmt.Println("Update error:", err)
+		return err
+	}
+	return nil
+}

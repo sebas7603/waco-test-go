@@ -37,6 +37,12 @@ func Start() error {
 			privateGroup.Use(middlewares.AuthMiddleware())
 		}
 
+		profileGroup := privateGroup.Group("/profile")
+		{
+			profileGroup.GET("/", controllers.ShowProfile)
+			profileGroup.PUT("/", controllers.UpdateProfile)
+		}
+
 		characterGroup := privateGroup.Group("/characters")
 		{
 			characterGroup.GET("/", controllers.IndexCharacters)

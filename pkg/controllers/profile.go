@@ -106,6 +106,36 @@ func AddFavoriteByID(c *gin.Context) {
 		return
 	}
 
+	c.JSON(http.StatusCreated, gin.H{
+		"user": user,
+	})
+}
+
+func RemoveFavoriteByID(c *gin.Context) {
+	userID, _ := strconv.ParseInt(c.GetString("user_id"), 10, 64)
+	user, err := models.GetUserByID(userID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	favorite := models.Favorite{
+		UserID: userID,
+		RefAPI: c.PostForm("character_id"),
+	}
+
+	err = models.RemoveFavorite(&favorite)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = addFavoritesToUserStruct(user, c)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"user": user,
 	})

@@ -56,6 +56,17 @@ func AddFavorite(favorite *Favorite) error {
 	return nil
 }
 
+func RemoveFavorite(favorite *Favorite) error {
+	deleteQuery := fmt.Sprintf("DELETE FROM %s WHERE user_id = ? AND ref_api = ?", tableNameFavorites)
+	_, err := db.GetDB().Exec(deleteQuery, favorite.UserID, favorite.RefAPI)
+	if err != nil {
+		fmt.Println("Delete error:", err)
+		return err
+	}
+
+	return nil
+}
+
 func CheckFavoriteExists(favorite *Favorite) (bool, error) {
 	query := fmt.Sprintf("SELECT id FROM %s WHERE user_id = ? AND ref_api = ? LIMIT 1", tableNameFavorites)
 

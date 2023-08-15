@@ -56,6 +56,6 @@ func Start() error {
 		}
 	}
 
-	router.Run("127.0.0.1:" + os.Getenv("APP_PORT"))
+	router.Run("0.0.0.0:" + os.Getenv("PORT"))
 	return nil
 }
